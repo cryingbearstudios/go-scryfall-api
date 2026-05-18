@@ -7,27 +7,29 @@ import (
 )
 
 const (
-	// baseURL is the base URL for all Scryfall API endpoints.
-	baseURL = "https://api.scryfall.com"
+	baseURL         = "https://api.scryfall.com"
+	userAgentString = "go-scryfall-api/0.1 (Crying Bear Studios)"
 )
 
 type ScryfallClient struct {
-	rc            *resty.Client
-	errorResponse Error
+	*resty.Client
 }
 
-func NewClient(ctx context.Context) *ScryfallClient {
+func NewClient() *ScryfallClient {
 	return &ScryfallClient{
-		rc: resty.New().SetContext(ctx),
+		resty.New().
+			SetHeader("User-Agent", userAgentString).
+			SetBaseURL(baseURL),
 	}
 }
 
-func (c *ScryfallClient) Close() {
-	c.rc.Close()
+func (c *ScryfallClient) Close() error {
+	return c.Close()
 }
 
-func (c *ScryfallClient) r() *resty.Request {
-	return c.rc.R().
+func (c *ScryfallClient) r(ctx context.Context) *resty.Request {
+	return c.R().
+		SetContext(ctx).
 		SetHeader("Accept", "application/json").
-		SetError(c.errorResponse)
+		SetError(Error{})
 }

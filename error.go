@@ -20,7 +20,7 @@ type Error struct {
 	// error. For example, an endpoint may generate HTTP 404 errors for different
 	// kinds of input. This field will provide a label for the specific kind of
 	// 404 failure, such as "ambiguous".
-	Type *string `json:"type,omitempty"`
+	Type string `json:"type,omitempty"`
 
 	// If your input also generated non-failure warnings, they will be provided
 	// as human-readable strings.

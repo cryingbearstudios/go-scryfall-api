@@ -13,7 +13,7 @@ type CardSymbol struct {
 
 	// An alternate version of this symbol, if it is possible to write it
 	// without curly braces.
-	LooseVariant *string `json:"loose_variant,omitempty"`
+	LooseVariant string `json:"loose_variant,omitempty"`
 
 	// An English snippet that describes this symbol. Appropriate for use in alt
 	// text or other accessible communication formats.
@@ -47,8 +47,8 @@ type CardSymbol struct {
 	// An array of plaintext versions of this symbol that Gatherer uses on old
 	// cards to describe original printed text. For example: {W} has ["oW",
 	// "ooW"] as alternates.
-	GathererAlternates *string `json:"gatherer_alternates,omitempty"`
+	GathererAlternates string `json:"gatherer_alternates,omitempty"`
 
 	// A URI to an SVG image of this symbol on Scryfall’s CDNs.
-	SvgURI *string `json:"svg_uri,omitempty"`
+	SvgURI string `json:"svg_uri,omitempty"`
 }

@@ -1,6 +1,11 @@
 package scryfall
 
-import "time"
+import (
+	"context"
+	"fmt"
+
+	"cloud.google.com/go/civil"
+)
 
 // Set represents a group of related Magic cards. All Card objects on Scryfall
 // belong to exactly one set.
@@ -22,7 +27,7 @@ type Set struct {
 	Code string `json:"code"`
 
 	// The unique code for this set on MTGO, which may differ from the regular code.
-	MtgoCode *string `json:"mtgo_code,omitempty"`
+	MtgoCode string `json:"mtgo_code,omitempty"`
 
 	// This set’s ID on TCGplayer’s API, also known as the groupId.
 	TcgplayerID *int `json:"tcgplayer_id,omitempty"`
@@ -34,16 +39,16 @@ type Set struct {
 	SetType string `json:"set_type"`
 
 	// The date the set was released or the first card was printed in the set.
-	ReleasedAt *time.Time `json:"released_at,omitempty"`
+	ReleasedAt civil.Date `json:"released_at,omitempty"`
 
 	// The block code for this set, if any.
-	BlockCode *string `json:"block_code,omitempty"`
+	BlockCode string `json:"block_code,omitempty"`
 
 	// The block or group name code for this set, if any.
-	Block *string `json:"block,omitempty"`
+	Block string `json:"block,omitempty"`
 
 	// The set code for the parent set, if any. promo and token sets often have a parent set.
-	ParentSetCode *string `json:"parent_set_code,omitempty"`
+	ParentSetCode string `json:"parent_set_code,omitempty"`
 
 	// The number of cards in this set.
 	CardCount int `json:"card_count"`
@@ -73,5 +78,19 @@ type Set struct {
 	SearchURI string `json:"search_uri"`
 
 	// The unique code for this set on MTG Arena, which may differ from the regular code.
-	ArenaCode *string `json:"arena_code,omitempty"`
+	ArenaCode string `json:"arena_code,omitempty"`
+}
+
+func (c *ScryfallClient) PaginateAllSets(ctx context.Context, callback PaginationCallback[Set]) error {
+	var list List[Set]
+	resp, err := c.r(ctx).
+		SetResult(&list).
+		Get("sets")
+	if err != nil {
+		return fmt.Errorf("failed to fetch list of sets: %v", err)
+	}
+	if !resp.IsSuccess() {
+		return fmt.Errorf("failed to fetch list of sets: %s", resp.Status())
+	}
+	return list.Paginate(ctx, c, callback)
 }

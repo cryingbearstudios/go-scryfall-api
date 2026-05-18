@@ -1,6 +1,6 @@
 package scryfall
 
-import "time"
+import "cloud.google.com/go/civil"
 
 type Ruling struct {
 	// A content type for this object, always "ruling".
@@ -10,7 +10,7 @@ type Ruling struct {
 	Source string `json:"source"`
 
 	/// The date when the ruling or note was published.
-	PublishedAt time.Time `json:"published_at,omitempty"`
+	PublishedAt civil.Date `json:"published_at,omitempty"`
 
 	/// The text of the ruling.
 	Comment string `json:"comment"`

@@ -1,11 +1,14 @@
 package scryfall
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
-// ApiList represents a requested sequence of other objects (Cards, Sets, etc).
+// List represents a requested sequence of other objects (Cards, Sets, etc).
 // List objects may be paginated, and also include information about issues raised
 // when generating the list.
-type ApiList[T any] struct {
+type List[T any] struct {
 	// A content type for this object, always "list".
 	ObjectType string `json:"object"`
 
@@ -32,11 +35,11 @@ type ApiList[T any] struct {
 	Warnings []string `json:"warnings,omitempty"`
 }
 
-type PaginationCallback[T any] func(T) error
+type PaginationCallback[T any] func(context.Context, T) error
 
-func (l *ApiList[T]) Paginate(client *ScryfallClient, callback PaginationCallback[T]) error {
+func (l *List[T]) Paginate(ctx context.Context, client *ScryfallClient, callback PaginationCallback[T]) error {
 	for _, item := range l.Data {
-		err := callback(item)
+		err := callback(ctx, item)
 		if err != nil {
 			return err
 		}
@@ -44,13 +47,13 @@ func (l *ApiList[T]) Paginate(client *ScryfallClient, callback PaginationCallbac
 	if !l.HasMore {
 		return nil
 	}
-	nextPage := ApiList[T]{}
-	resp, err := client.r().SetResult(nextPage).Get(l.NextPage)
+	nextPage := List[T]{}
+	resp, err := client.r(ctx).SetResult(nextPage).Get(l.NextPage)
 	if err != nil {
 		return err
 	}
 	if resp.IsError() {
-		return fmt.Errorf("failed to fetch during pagination on url %s: %v", l.NextPage, client.errorResponse.Details)
+		return fmt.Errorf("failed to fetch during pagination on url %s: %v", l.NextPage, resp.Error().(Error).Details)
 	}
-	return nextPage.Paginate(client, callback)
+	return nextPage.Paginate(ctx, client, callback)
 }

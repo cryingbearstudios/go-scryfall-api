@@ -1,6 +1,6 @@
 package scryfall
 
-import "time"
+import "cloud.google.com/go/civil"
 
 // Card objects represent individual Magic: The Gathering cards that players could obtain
 // and add to their collection (with a few minor exceptions).
@@ -36,7 +36,7 @@ type Card struct {
 	CardmarketID *int64 `json:"cardmarket_id,omitempty"`
 
 	// A unique ID for this card’s oracle identity. This value is consistent across reprinted card editions, and unique among different cards with the same name.
-	OracleID *string `json:"oracle_id,omitempty"`
+	OracleID string `json:"oracle_id,omitempty"`
 
 	// A link to where you can begin paginating all re/prints for this card on Scryfall’s API.
 	PrintsSearchURI string `json:"prints_search_uri"`
@@ -72,7 +72,7 @@ type Card struct {
 	EdhrecRank *int64 `json:"edhrec_rank,omitempty"`
 
 	// This card’s hand modifier, if it is Vanguard card. This value will contain a delta, such as -1.
-	HandModifier *string `json:"hand_modifier,omitempty"`
+	HandModifier string `json:"hand_modifier,omitempty"`
 
 	// An array of keywords that this card uses, such as 'Flying' and 'Cumulative upkeep'.
 	Keywords []string `json:"keywords"`
@@ -84,29 +84,29 @@ type Card struct {
 	Legalities map[string]string `json:"legalities"`
 
 	// This card’s life modifier, if it is Vanguard card. This value will contain a delta, such as +2.
-	LifeModifier *string `json:"life_modifier,omitempty"`
+	LifeModifier string `json:"life_modifier,omitempty"`
 
 	// This loyalty if any. Note that some cards have loyalties that are not numeric, such as X.
-	Loyalty *string `json:"loyalty,omitempty"`
+	Loyalty string `json:"loyalty,omitempty"`
 
 	// The mana cost for this card. This value will be any empty string "" if the cost is absent.
 	// Remember that per the game rules, a missing mana cost and a mana cost of {0} are different values.
-	ManaCost *string `json:"mana_cost,omitempty"`
+	ManaCost string `json:"mana_cost,omitempty"`
 
 	// The name of this card. If this card has multiple faces, this field will contain both names separated by ␣//␣.
 	Name string `json:"name"`
 
 	// The Oracle text for this card, if any.
-	OracleText *string `json:"oracle_text,omitempty"`
+	OracleText string `json:"oracle_text,omitempty"`
 
 	// True if this card is oversized.
 	Oversized bool `json:"oversized"`
 
 	// This card’s rank/popularity on Penny Dreadful. Not all cards are ranked.
-	PennyRank *int64 `json:"penny_rank,omitempty"`
+	PennyRank int64 `json:"penny_rank,omitempty"`
 
 	// This card’s power, if any. Note that some cards have powers that are not numeric, such as *.
-	Power *string `json:"power,omitempty"`
+	Power string `json:"power,omitempty"`
 
 	// Colors of mana that this card could produce.
 	ProducedMana []string `json:"produced_mana,omitempty"`
@@ -115,13 +115,13 @@ type Card struct {
 	Reserved bool `json:"reserved"`
 
 	// This card’s toughness, if any. Note that some cards have toughnesses that are not numeric, such as *.
-	Toughness *string `json:"toughness,omitempty"`
+	Toughness string `json:"toughness,omitempty"`
 
 	// The type line of this card.
-	TypeLine *string `json:"type_line,omitempty"`
+	TypeLine string `json:"type_line,omitempty"`
 
 	// The name of the illustrator of this card. Newly spoiled cards may not have this field yet.
-	Artist *string `json:"artist,omitempty"`
+	Artist string `json:"artist,omitempty"`
 
 	// The lit Unfinity attractions lights on this card, if any.
 	AttractionLights []int64 `json:"attraction_lights,omitempty"`
@@ -139,7 +139,7 @@ type Card struct {
 	CollectorNumber string `json:"collector_number"`
 
 	// True if you should consider avoiding use of this print downstream.
-	ContentWarning *bool `json:"content_warning,omitempty"`
+	ContentWarning bool `json:"content_warning,omitempty"`
 
 	// True if this card was only released in a video game.
 	Digital bool `json:"digital"`
@@ -148,10 +148,10 @@ type Card struct {
 	Finishes []string `json:"finishes"`
 
 	// The just-for-fun name printed on the card (such as for Godzilla series cards).
-	FlavorName *string `json:"flavor_name,omitempty"`
+	FlavorName string `json:"flavor_name,omitempty"`
 
 	// The flavor text, if any.
-	FlavorText *string `json:"flavor_text,omitempty"`
+	FlavorText string `json:"flavor_text,omitempty"`
 
 	// This card’s frame effects, if any.
 	FrameEffects []string `json:"frame_effects,omitempty"`
@@ -169,7 +169,7 @@ type Card struct {
 	HighresImage bool `json:"highres_image"`
 
 	// A unique identifier for the card artwork that remains consistent across reprints. Newly spoiled cards may not have this field yet.
-	IllustrationID *string `json:"illustration_id,omitempty"`
+	IllustrationID string `json:"illustration_id,omitempty"`
 
 	// A computer-readable indicator for the state of this card’s image.
 	ImageStatus string `json:"image_status"`
@@ -178,16 +178,16 @@ type Card struct {
 	ImageURIs map[string]string `json:"image_uris,omitempty"`
 
 	// An object containing daily price information for this card, including usd, usd_foil, usd_etched, eur, and tix prices.
-	Prices map[string]*string `json:"prices"`
+	Prices map[string]string `json:"prices"`
 
 	// The localized name printed on this card, if any.
-	PrintedName *string `json:"printed_name,omitempty"`
+	PrintedName string `json:"printed_name,omitempty"`
 
 	// The localized text printed on this card, if any.
-	PrintedText *string `json:"printed_text,omitempty"`
+	PrintedText string `json:"printed_text,omitempty"`
 
 	// The localized type line printed on this card, if any.
-	PrintedTypeLine *string `json:"printed_type_line,omitempty"`
+	PrintedTypeLine string `json:"printed_type_line,omitempty"`
 
 	// True if this card is a promotional print.
 	Promo bool `json:"promo"`
@@ -205,7 +205,7 @@ type Card struct {
 	RelatedURIs map[string]string `json:"related_uris"`
 
 	// The date this card was first released.
-	ReleasedAt time.Time `json:"released_at"`
+	ReleasedAt civil.Date `json:"released_at"`
 
 	// True if this card is a reprint.
 	Reprint bool `json:"reprint"`
@@ -241,13 +241,13 @@ type Card struct {
 	Variation bool `json:"variation"`
 
 	// The printing ID of the printing this card is a variation of.
-	VariationOf *string `json:"variation_of,omitempty"`
+	VariationOf string `json:"variation_of,omitempty"`
 
 	// The security stamp on this card, if any.
-	SecurityStamp *string `json:"security_stamp,omitempty"`
+	SecurityStamp string `json:"security_stamp,omitempty"`
 
 	// This card’s watermark, if any.
-	Watermark *string `json:"watermark,omitempty"`
+	Watermark string `json:"watermark,omitempty"`
 
 	// When, where and by whom this card was previewed.
 	Preview *Preview `json:"preview,omitempty"`

@@ -1,8 +1,12 @@
 package scryfall
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-	"path"
+	"log/slog"
+	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -63,16 +67,72 @@ type BulkData struct {
 	ContentEncoding string `json:"content_encoding"`
 }
 
-func (c *ScryfallClient) GetBulkDataByType(bulkDataType string) (*BulkData, error) {
-	var bulkDataEntry BulkData
-	resp, err := c.r().
-		SetResult(&bulkDataEntry).
-		Get(path.Join(baseURL, "bulk-data", bulkDataType))
+type EnumerationCallback[T any] func(context.Context, *T) error
+
+// LIMITATION: writes progress, but only to the logger, and this is currently not optional.
+func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[Card]) error {
+	req, err := http.NewRequestWithContext(ctx, "GET", bd.DownloadURI, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch bulk data for type %s: %w", bulkDataType, err)
+		return err
+	}
+	req.Header["User-Agent"] = []string{userAgentString}
+	req.Header["Accept"] = []string{bd.ContentType}
+	slog.LogAttrs(ctx, slog.LevelDebug, "fetch bulk data file", slog.String("uri", bd.DownloadURI))
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	decoder := json.NewDecoder(resp.Body)
+	startingToken, err := decoder.Token()
+	if err != nil {
+		return err
+	}
+	if delim, ok := startingToken.(json.Delim); !ok || delim != '[' {
+		return fmt.Errorf("expected bulk data file to begin with array start [ but got %v", startingToken)
+	}
+	slog.LogAttrs(ctx, slog.LevelDebug, "begin", slog.Int64("fileSize", bd.Size))
+	floatSize := float64(bd.Size)
+
+	lastWholePercentage := 0
+	for decoder.More() {
+		var card Card
+		if err = decoder.Decode(&card); err != nil {
+			return err
+		}
+		if err = callback(ctx, &card); err != nil {
+			return err
+		}
+		percentage := (float64(decoder.InputOffset()) / floatSize) * 100
+		wholePercentage := int(percentage)
+		if wholePercentage > lastWholePercentage {
+			slog.LogAttrs(ctx, slog.LevelInfo, "progress",
+				slog.Int64("offset", decoder.InputOffset()),
+				slog.Float64("percent", percentage))
+			lastWholePercentage = wholePercentage
+		}
+		// check for context cancellation
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *ScryfallClient) GetBulkDataByType(ctx context.Context, bulkDataType string) (*BulkData, error) {
+	var bulkDataEntry BulkData
+	urlString, err := url.JoinPath("bulk-data", bulkDataType)
+	if err != nil {
+		return nil, err
+	}
+	slog.LogAttrs(ctx, slog.LevelDebug, "request bulk data", slog.String("urlString", urlString))
+	resp, err := c.r(ctx).SetResult(&bulkDataEntry).Get(urlString)
+	if err != nil {
+		return nil, err
 	}
 	if resp.IsError() {
-		return nil, fmt.Errorf("failed to fetch bulk data for type %s: %v", bulkDataType, c.errorResponse.Details)
+		return nil, fmt.Errorf("failed to fetch bulk data for type %s: %v", bulkDataType, resp.Error().(Error).Details)
 	}
 	return &bulkDataEntry, nil
 }
