@@ -79,7 +79,7 @@ func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[C
 	}
 	req.Header["User-Agent"] = []string{userAgentString}
 	req.Header["Accept"] = []string{bd.ContentType}
-	slog.LogAttrs(ctx, slog.LevelDebug, "fetch bulk data file", slog.String("uri", bd.DownloadURI))
+	slog.DebugContext(ctx, "fetch bulk data file", "uri", bd.DownloadURI)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
@@ -94,10 +94,9 @@ func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[C
 	if delim, ok := startingToken.(json.Delim); !ok || delim != '[' {
 		return fmt.Errorf("expected bulk data file to begin with array start [ but got %v", startingToken)
 	}
-	slog.LogAttrs(ctx, slog.LevelDebug, "begin", slog.Int64("fileSize", bd.Size))
-	floatSize := float64(bd.Size)
+	slog.DebugContext(ctx, "begin", "fileSize", bd.Size)
 
-	lastWholePercentage := 0
+	cardCount := 0
 	for decoder.More() {
 		var card Card
 		if err = decoder.Decode(&card); err != nil {
@@ -106,13 +105,14 @@ func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[C
 		if err = callback(ctx, &card); err != nil {
 			return err
 		}
-		percentage := (float64(decoder.InputOffset()) / floatSize) * 100
-		wholePercentage := int(percentage)
-		if wholePercentage > lastWholePercentage {
-			slog.LogAttrs(ctx, slog.LevelInfo, "progress",
-				slog.Int64("offset", decoder.InputOffset()),
-				slog.Float64("percent", percentage))
-			lastWholePercentage = wholePercentage
+		cardCount += 1
+		percentage := decoder.InputOffset() / bd.Size * 100
+
+		if percentage%5 == 0 {
+			slog.InfoContext(ctx, "progress",
+				"count", cardCount,
+				"offset", decoder.InputOffset(),
+				"percent", percentage)
 		}
 		// check for context cancellation
 		if err := ctx.Err(); err != nil {
