@@ -43,6 +43,9 @@ func (l *List[T]) Paginate(ctx context.Context, client *ScryfallClient, callback
 		if err != nil {
 			return err
 		}
+		if err = ctx.Err(); err != nil {
+			return err
+		}
 	}
 	if !l.HasMore {
 		return nil
