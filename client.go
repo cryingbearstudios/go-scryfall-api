@@ -23,10 +23,6 @@ func NewClient() *ScryfallClient {
 	}
 }
 
-func (c *ScryfallClient) Close() error {
-	return c.Close()
-}
-
 func (c *ScryfallClient) r(ctx context.Context) *resty.Request {
 	return c.R().
 		SetContext(ctx).
