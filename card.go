@@ -1,6 +1,9 @@
 package scryfall
 
-import "cloud.google.com/go/civil"
+import (
+	"cloud.google.com/go/civil"
+	"github.com/google/uuid"
+)
 
 // Card objects represent individual Magic: The Gathering cards that players could obtain
 // and add to their collection (with a few minor exceptions).
@@ -12,7 +15,7 @@ type Card struct {
 	ArenaID *int64 `json:"arena_id,omitempty"`
 
 	// A unique ID for this card in Scryfall’s database.
-	ID string `json:"id"`
+	ID uuid.UUID `json:"id"`
 
 	// A language code for this printing.
 	Lang string `json:"lang"`
@@ -36,7 +39,7 @@ type Card struct {
 	CardmarketID *int64 `json:"cardmarket_id,omitempty"`
 
 	// A unique ID for this card’s oracle identity. This value is consistent across reprinted card editions, and unique among different cards with the same name.
-	OracleID string `json:"oracle_id,omitempty"`
+	OracleID *uuid.UUID `json:"oracle_id,omitempty"`
 
 	// A link to where you can begin paginating all re/prints for this card on Scryfall’s API.
 	PrintsSearchURI string `json:"prints_search_uri"`
@@ -133,7 +136,7 @@ type Card struct {
 	BorderColor string `json:"border_color"`
 
 	// The Scryfall ID for the card back design present on this card.
-	CardBackID string `json:"card_back_id"`
+	CardBackID *uuid.UUID `json:"card_back_id"`
 
 	// This card’s collector number.
 	CollectorNumber string `json:"collector_number"`
@@ -169,7 +172,7 @@ type Card struct {
 	HighresImage bool `json:"highres_image"`
 
 	// A unique identifier for the card artwork that remains consistent across reprints. Newly spoiled cards may not have this field yet.
-	IllustrationID string `json:"illustration_id,omitempty"`
+	IllustrationID *uuid.UUID `json:"illustration_id,omitempty"`
 
 	// A computer-readable indicator for the state of this card’s image.
 	ImageStatus string `json:"image_status"`
@@ -229,7 +232,7 @@ type Card struct {
 	Set string `json:"set"`
 
 	// This card’s Set object UUID.
-	SetID string `json:"set_id"`
+	SetID uuid.UUID `json:"set_id"`
 
 	// True if this card is a Story Spotlight.
 	StorySpotlight bool `json:"story_spotlight"`
@@ -253,7 +256,7 @@ type Card struct {
 	Preview *Preview `json:"preview,omitempty"`
 
 	// Undocumented by Scryfall fields
-	ArtistIDs []string `json:"artist_ids,omitempty"`
-	Foil      bool     `json:"foil"`
-	Nonfoil   bool     `json:"nonfoil"`
+	ArtistIDs []uuid.UUID `json:"artist_ids,omitempty"`
+	Foil      bool        `json:"foil"`
+	Nonfoil   bool        `json:"nonfoil"`
 }

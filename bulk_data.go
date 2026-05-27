@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // BulkData represents a Scryfall bulk export file.
@@ -37,7 +39,7 @@ type BulkData struct {
 	ObjectType string `json:"object"`
 
 	// A unique ID for this bulk item.
-	ID string `json:"id"`
+	ID uuid.UUID `json:"id"`
 
 	// The Scryfall API URI for this file.
 	URI string `json:"uri"`

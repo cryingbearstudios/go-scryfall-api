@@ -1,5 +1,7 @@
 package scryfall
 
+import "github.com/google/uuid"
+
 // Multiface cards have a CardFaces property containing at least two Card Face objects.
 type CardFace struct {
 	// A content type for this object, always "card_face".
@@ -22,7 +24,7 @@ type CardFace struct {
 
 	// A unique identifier for the card face artwork that remains consistent across reprints.
 	// Newly spoiled cards may not have this field yet.
-	IllustrationID string `json:"illustration_id,omitempty"`
+	IllustrationID uuid.UUID `json:"illustration_id,omitempty"`
 
 	// An object providing URIs to imagery for this face, if this is a double-sided card.
 	// If this card is not double-sided, then the image_uris property will be part of the parent object instead.
@@ -42,7 +44,7 @@ type CardFace struct {
 	Name string `json:"name"`
 
 	// The Oracle ID of this particular face, if the card is reversible.
-	OracleID string `json:"oracle_id,omitempty"`
+	OracleID *uuid.UUID `json:"oracle_id,omitempty"`
 
 	// The Oracle text for this face, if any.
 	OracleText string `json:"oracle_text,omitempty"`
@@ -69,8 +71,8 @@ type CardFace struct {
 	Watermark string `json:"watermark,omitempty"`
 
 	// Undocumented by Scryfall fields
-	ArtistID string `json:"artist_id,omitempty"`
-	Defense  string `json:"defense,omitempty"`
+	ArtistID uuid.UUID `json:"artist_id,omitempty"`
+	Defense  string    `json:"defense,omitempty"`
 
 	// The just-for-fun name printed on the card face (such as for Godzilla series cards).
 	FlavorName string `json:"flavor_name,omitempty"`

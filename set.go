@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"cloud.google.com/go/civil"
+	"github.com/google/uuid"
 )
 
 // Set represents a group of related Magic cards. All Card objects on Scryfall
@@ -21,7 +22,7 @@ type Set struct {
 	ObjectType string `json:"object"`
 
 	// A unique ID for this set on Scryfall that will not change.
-	ID string `json:"id"`
+	ID uuid.UUID `json:"id"`
 
 	// The unique three to five-letter code for this set.
 	Code string `json:"code"`
