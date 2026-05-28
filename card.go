@@ -1,8 +1,14 @@
 package scryfall
 
 import (
+	"context"
+	"fmt"
+	"log/slog"
+	"net/url"
+
 	"cloud.google.com/go/civil"
 	"github.com/google/uuid"
+	"github.com/govalues/decimal"
 )
 
 // Card objects represent individual Magic: The Gathering cards that players could obtain
@@ -181,7 +187,7 @@ type Card struct {
 	ImageURIs map[string]string `json:"image_uris,omitempty"`
 
 	// An object containing daily price information for this card, including usd, usd_foil, usd_etched, eur, and tix prices.
-	Prices map[string]string `json:"prices"`
+	Prices map[string]decimal.Decimal `json:"prices"`
 
 	// The localized name printed on this card, if any.
 	PrintedName string `json:"printed_name,omitempty"`
@@ -259,4 +265,23 @@ type Card struct {
 	ArtistIDs []uuid.UUID `json:"artist_ids,omitempty"`
 	Foil      bool        `json:"foil"`
 	Nonfoil   bool        `json:"nonfoil"`
+}
+
+func (c *ScryfallClient) GetCardById(ctx context.Context, id uuid.UUID) (*Card, error) {
+	urlString, err := url.JoinPath("cards", id.String())
+	if err != nil {
+		return nil, err
+	}
+	var card Card
+
+	slog.Debug("requesting card by id", "id", id)
+	resp, err := c.r(ctx).SetResult(&card).Get(urlString)
+	if err != nil {
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, fmt.Errorf("failed to fetch card by id %s: %v", id, resp.Error().(Error).Details)
+	}
+
+	return &card, nil
 }

@@ -12,7 +12,7 @@ const (
 )
 
 type ScryfallClient struct {
-	*resty.Client
+	c *resty.Client
 }
 
 func NewClient() *ScryfallClient {
@@ -24,7 +24,7 @@ func NewClient() *ScryfallClient {
 }
 
 func (c *ScryfallClient) r(ctx context.Context) *resty.Request {
-	return c.R().
+	return c.c.R().
 		SetContext(ctx).
 		SetHeader("Accept", "application/json").
 		SetError(Error{})
