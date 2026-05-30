@@ -97,6 +97,7 @@ func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[C
 	slog.DebugContext(ctx, "begin", "fileSize", bd.Size)
 
 	cardCount := 0
+	percentComplete := 0
 	for decoder.More() {
 		var card Card
 		if err = decoder.Decode(&card); err != nil {
@@ -106,13 +107,15 @@ func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[C
 			return err
 		}
 		cardCount += 1
-		percentage := decoder.InputOffset() / bd.Size * 100
+		fraction := float32(decoder.InputOffset()) / float32(bd.Size)
+		percentage := int(fraction * 100)
 
-		if percentage%5 == 0 {
+		if percentage%5 == 0 && percentage > percentComplete {
 			slog.InfoContext(ctx, "progress",
 				"count", cardCount,
 				"offset", decoder.InputOffset(),
 				"percent", percentage)
+			percentComplete = percentage
 		}
 		// check for context cancellation
 		if err := ctx.Err(); err != nil {
