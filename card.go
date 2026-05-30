@@ -8,7 +8,6 @@ import (
 
 	"cloud.google.com/go/civil"
 	"github.com/google/uuid"
-	"github.com/govalues/decimal"
 )
 
 // Card objects represent individual Magic: The Gathering cards that players could obtain
@@ -187,7 +186,7 @@ type Card struct {
 	ImageURIs map[string]string `json:"image_uris,omitempty"`
 
 	// An object containing daily price information for this card, including usd, usd_foil, usd_etched, eur, and tix prices.
-	Prices map[string]decimal.Decimal `json:"prices"`
+	Prices *Prices `json:"prices"`
 
 	// The localized name printed on this card, if any.
 	PrintedName string `json:"printed_name,omitempty"`

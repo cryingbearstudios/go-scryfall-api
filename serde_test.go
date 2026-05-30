@@ -35,6 +35,12 @@ func TestUuids(t *testing.T) {
 }
 
 func TestDecimals(t *testing.T) {
-	assert.True(t, decimal.One.Cmp(loadedCard.Prices["usd"]) < 0)
-	assert.True(t, decimal.One.Cmp(loadedCard.Prices["eur"]) < 0)
+	if assert.NotNil(t, loadedCard.Prices) {
+		if assert.NotNil(t, loadedCard.Prices.Usd) {
+			assert.True(t, decimal.One.Cmp(*loadedCard.Prices.Usd) < 0)
+		}
+		if assert.NotNil(t, loadedCard.Prices.Eur) {
+			assert.True(t, decimal.One.Cmp(*loadedCard.Prices.Eur) < 0)
+		}
+	}
 }
