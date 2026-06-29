@@ -77,7 +77,7 @@ func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[C
 	if err != nil {
 		return err
 	}
-	req.Header["User-Agent"] = []string{userAgentString}
+	req.Header["User-Agent"] = []string{UserAgentString}
 	req.Header["Accept"] = []string{bd.ContentType}
 	slog.DebugContext(ctx, "fetch bulk data file", "uri", bd.DownloadURI)
 	resp, err := http.DefaultClient.Do(req)

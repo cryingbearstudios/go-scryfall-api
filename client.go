@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	baseURL         = "https://api.scryfall.com"
-	userAgentString = "go-scryfall-api/0.1 (Crying Bear Studios)"
+	BaseURL         = "https://api.scryfall.com"
+	UserAgentString = "go-scryfall-api/0.1 (Crying Bear Studios)"
 )
 
 type ScryfallClient struct {
@@ -18,8 +18,8 @@ type ScryfallClient struct {
 func NewClient() *ScryfallClient {
 	return &ScryfallClient{
 		resty.New().
-			SetHeader("User-Agent", userAgentString).
-			SetBaseURL(baseURL),
+			SetHeader("User-Agent", UserAgentString).
+			SetBaseURL(BaseURL),
 	}
 }
 
