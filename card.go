@@ -17,7 +17,7 @@ type Card struct {
 	ObjectType string `json:"object"`
 
 	// This card’s Arena ID, if any. A large percentage of cards are not available on Arena and do not have this ID.
-	ArenaID *int64 `json:"arena_id,omitempty"`
+	ArenaID *int `json:"arena_id,omitempty"`
 
 	// A unique ID for this card in Scryfall’s database.
 	ID uuid.UUID `json:"id"`
@@ -35,13 +35,13 @@ type Card struct {
 	MultiverseIDs []int64 `json:"multiverse_ids,omitempty"`
 
 	// This card’s ID on TCGplayer’s API, also known as the productId.
-	TcgplayerID *int64 `json:"tcgplayer_id,omitempty"`
+	TcgplayerID *int `json:"tcgplayer_id,omitempty"`
 
 	// This card’s ID on TCGplayer’s API, for its etched version if that version is a separate product.
-	TcgplayerEtchedID *int64 `json:"tcgplayer_etched_id,omitempty"`
+	TcgplayerEtchedID *int `json:"tcgplayer_etched_id,omitempty"`
 
 	// This card’s ID on Cardmarket’s API, also known as the 'idProduct'.
-	CardmarketID *int64 `json:"cardmarket_id,omitempty"`
+	CardmarketID *int `json:"cardmarket_id,omitempty"`
 
 	// A unique ID for this card’s oracle identity. This value is consistent across reprinted card editions, and unique among different cards with the same name.
 	OracleID *uuid.UUID `json:"oracle_id,omitempty"`
@@ -65,7 +65,7 @@ type Card struct {
 	CardFaces []CardFace `json:"card_faces,omitempty"`
 
 	// The card’s converted mana cost. Note that some funny cards have fractional mana costs.
-	Cmc *float64 `json:"cmc,omitempty"`
+	Cmc *float32 `json:"cmc,omitempty"`
 
 	// This card’s color identity.
 	ColorIdentity []string `json:"color_identity"`
@@ -111,7 +111,7 @@ type Card struct {
 	Oversized bool `json:"oversized"`
 
 	// This card’s rank/popularity on Penny Dreadful. Not all cards are ranked.
-	PennyRank int64 `json:"penny_rank,omitempty"`
+	PennyRank int `json:"penny_rank,omitempty"`
 
 	// This card’s power, if any. Note that some cards have powers that are not numeric, such as *.
 	Power string `json:"power,omitempty"`
