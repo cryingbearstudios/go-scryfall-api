@@ -1,9 +1,11 @@
 package scryfall
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -54,7 +56,7 @@ type BulkData struct {
 	Description string `json:"description"`
 
 	// The URI that hosts this bulk file for fetching.
-	DownloadURI string `json:"download_uri"`
+	JsonlDownloadURI string `json:"jsonl_download_uri"`
 
 	// The time when this file was last updated.
 	UpdatedAt time.Time `json:"updated_at"`
@@ -73,34 +75,35 @@ type EnumerationCallback[T any] func(context.Context, *T) error
 
 // LIMITATION: writes progress, but only to the logger, and this is currently not optional.
 func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[Card]) error {
-	req, err := http.NewRequestWithContext(ctx, "GET", bd.DownloadURI, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", bd.JsonlDownloadURI, nil)
 	if err != nil {
 		return err
 	}
 	req.Header["User-Agent"] = []string{UserAgentString}
 	req.Header["Accept"] = []string{bd.ContentType}
-	slog.DebugContext(ctx, "fetch bulk data file", "uri", bd.DownloadURI)
+	slog.DebugContext(ctx, "fetch bulk data file", "uri", bd.JsonlDownloadURI)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	decoder := json.NewDecoder(resp.Body)
-	startingToken, err := decoder.Token()
+	reader, err := gzip.NewReader(resp.Body)
 	if err != nil {
 		return err
 	}
-	if delim, ok := startingToken.(json.Delim); !ok || delim != '[' {
-		return fmt.Errorf("expected bulk data file to begin with array start [ but got %v", startingToken)
-	}
+	defer reader.Close()
+	decoder := json.NewDecoder(reader)
 	slog.DebugContext(ctx, "begin", "fileSize", bd.Size)
 
 	cardCount := 0
 	percentComplete := 0
-	for decoder.More() {
+	for {
 		var card Card
-		if err = decoder.Decode(&card); err != nil {
+		if err := decoder.Decode(&card); err != nil {
+			if err == io.EOF {
+				break
+			}
 			return err
 		}
 		if err = callback(ctx, &card); err != nil {
