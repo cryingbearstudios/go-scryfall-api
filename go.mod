@@ -1,4 +1,4 @@
-module cryingbear.net/go-scryfall-api
+module github.com/cryingbearstudios/go-scryfall-api
 
 go 1.25.5
 

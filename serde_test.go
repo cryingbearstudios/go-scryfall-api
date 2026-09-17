@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"cryingbear.net/go-scryfall-api"
+	"github.com/cryingbearstudios/go-scryfall-api"
 	"github.com/google/uuid"
 	"github.com/govalues/decimal"
 	"github.com/stretchr/testify/assert"
