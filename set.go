@@ -83,15 +83,12 @@ type Set struct {
 }
 
 func (c *ScryfallClient) PaginateAllSets(ctx context.Context, callback PaginationCallback[Set]) error {
-	var list List[Set]
-	resp, err := c.r(ctx).
-		SetResult(&list).
-		Get("sets")
+	list, sErr, err := get[List[Set]](ctx, c, "sets")
 	if err != nil {
 		return fmt.Errorf("failed to fetch list of sets: %v", err)
 	}
-	if !resp.IsSuccess() {
-		return fmt.Errorf("failed to fetch list of sets: %s", resp.Status())
+	if sErr != nil {
+		return fmt.Errorf("failed to fetch list of sets: %v", sErr.Details)
 	}
 	return list.Paginate(ctx, c, callback)
 }

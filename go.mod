@@ -7,8 +7,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/govalues/decimal v0.1.36
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/net v0.43.0 // indirect
-	resty.dev/v3 v3.0.0-beta.6
 )
 
 require (

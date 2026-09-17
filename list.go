@@ -50,13 +50,12 @@ func (l *List[T]) Paginate(ctx context.Context, client *ScryfallClient, callback
 	if !l.HasMore {
 		return nil
 	}
-	nextPage := List[T]{}
-	resp, err := client.r(ctx).SetResult(nextPage).Get(l.NextPage)
+	page, sErr, err := get[List[T]](ctx, client, l.NextPage)
 	if err != nil {
 		return err
 	}
-	if resp.IsError() {
-		return fmt.Errorf("failed to fetch during pagination on url %s: %v", l.NextPage, resp.Error().(Error).Details)
+	if sErr != nil {
+		return fmt.Errorf("failed to fetch during pagination on url %s: %v", l.NextPage, sErr.Details)
 	}
-	return nextPage.Paginate(ctx, client, callback)
+	return page.Paginate(ctx, client, callback)
 }

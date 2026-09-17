@@ -3,8 +3,6 @@ package scryfall
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"net/url"
 
 	"cloud.google.com/go/civil"
 	"github.com/google/uuid"
@@ -267,20 +265,13 @@ type Card struct {
 }
 
 func (c *ScryfallClient) GetCardById(ctx context.Context, id uuid.UUID) (*Card, error) {
-	urlString, err := url.JoinPath("cards", id.String())
+	card, sErr, err := get[Card](ctx, c, "/cards", id.String())
 	if err != nil {
 		return nil, err
 	}
-	var card Card
-
-	slog.Debug("requesting card by id", "id", id)
-	resp, err := c.r(ctx).SetResult(&card).Get(urlString)
-	if err != nil {
-		return nil, err
-	}
-	if resp.IsError() {
-		return nil, fmt.Errorf("failed to fetch card by id %s: %v", id, resp.Error().(Error).Details)
+	if sErr != nil {
+		return nil, fmt.Errorf("failed to fetch card by id %s: %v", id, sErr.Details)
 	}
 
-	return &card, nil
+	return card, nil
 }

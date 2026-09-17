@@ -129,18 +129,18 @@ func (bd BulkData) Enumerate(ctx context.Context, callback EnumerationCallback[C
 }
 
 func (c *ScryfallClient) GetBulkDataByType(ctx context.Context, bulkDataType string) (*BulkData, error) {
-	var bulkDataEntry BulkData
 	urlString, err := url.JoinPath("bulk-data", bulkDataType)
 	if err != nil {
 		return nil, err
 	}
 	slog.LogAttrs(ctx, slog.LevelDebug, "request bulk data", slog.String("urlString", urlString))
-	resp, err := c.r(ctx).SetResult(&bulkDataEntry).Get(urlString)
+
+	bulkDataEntry, sErr, err := get[BulkData](ctx, c, urlString)
 	if err != nil {
 		return nil, err
 	}
-	if resp.IsError() {
-		return nil, fmt.Errorf("failed to fetch bulk data for type %s: %v", bulkDataType, resp.Error().(Error).Details)
+	if sErr != nil {
+		return nil, fmt.Errorf("failed to fetch bulk data for type %s: %v", bulkDataType, sErr.Details)
 	}
-	return &bulkDataEntry, nil
+	return bulkDataEntry, nil
 }
